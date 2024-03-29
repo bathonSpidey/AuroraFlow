@@ -10,7 +10,8 @@ from src.Rag.PagesProcessor import PagesProcessor
 
 
 class RagEncoder:
-    def __init__(self, path, model, page_offset):
+    def __init__(self, path, model, page_offset, device):
+        self.device = device
         self.pdf_reader = PdfReader(path)
         self.processor = PagesProcessor()
         self.embedding_model = SentenceTransformer(model, device="cpu")
@@ -37,7 +38,7 @@ class RagEncoder:
         pages_and_chunks = self.process_chunks()
         return self.add_embeddings(pages_and_chunks, clean_cache)
 
-    def add_embeddings(self, pages_and_chunks, clean_cache, device="cuda"):
+    def add_embeddings(self, pages_and_chunks, clean_cache):
         root = os.path.join(os.getcwd(), ".cache")
         if os.path.exists(f"{root}/rag_embeddings.csv") and not clean_cache:
             text_chunks_and_embedding_df = pd.read_csv(f"{root}/rag_embeddings.csv")
@@ -46,7 +47,7 @@ class RagEncoder:
             return text_chunks_and_embedding_df
         df = pd.DataFrame(pages_and_chunks)
         filtered_df = df[df["chunk_token_count"] > self.min_token_length].to_dict(orient="records")
-        self.embedding_model.to(device)
+        self.embedding_model.to(self.device)
         for item in tqdm(filtered_df):
             item["embedding"] = self.embedding_model.encode(item["sentence_chunk"])
         text_chunks_and_embedding_df = pd.DataFrame(filtered_df)

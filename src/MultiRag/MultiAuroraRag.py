@@ -1,27 +1,30 @@
+import os
 import textwrap
 
 import numpy as np
 import torch
 
-from src.Rag.RagEncoder import RagEncoder
+from src.MultiRag.MultiPdfReader import MultiPdfReader
+from src.MultiRag.MultiRagEncoder import MultiRagEncoder
 
 
-class AuroraRag:
+class MultiAuroraRag:
     def __init__(self, path, model, page_offset=0):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.encoder = RagEncoder(path, model, page_offset, self.device)
-
+        self.files = os.listdir(path)
+        self.data = MultiPdfReader(path).read()
+        self.multirag_encoder = MultiRagEncoder(self.data, model, self.device)
 
     def pdf_to_dataframe(self, clean_cache):
-        return self.encoder.make_embeddings(clean_cache)
+        return self.multirag_encoder.make_embeddings(clean_cache)
 
     def search(self, query, clean_cache=False):
         df = self.pdf_to_dataframe(clean_cache)
         database_embeddings = torch.tensor(np.stack(df["embedding"].tolist(), axis=0), dtype=torch.float32).to(
             self.device)
         pages_and_chunks = df.to_dict(orient="records")
-        query_embedding = self.encoder.embed_query(query, self.device)
-        scores = self.encoder.match(query_embedding, database_embeddings)
+        query_embedding = self.multirag_encoder.embed_query(query, self.device)
+        scores = self.multirag_encoder.match(query_embedding, database_embeddings)
         top_answers = self.retrieve(pages_and_chunks, scores)
         return top_answers
 
