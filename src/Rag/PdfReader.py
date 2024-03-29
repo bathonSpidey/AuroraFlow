@@ -1,12 +1,12 @@
 import fitz
-from tqdm import tqdm
+from tqdm.asyncio import tqdm
 
 
 class PdfReader:
     def __init__(self, path):
         self.data_path = path
 
-    def open_pdf(self, page_number_offset = 41):
+    def open_pdf(self, page_number_offset):
         doc = fitz.open(self.data_path)
         pages_and_text = []
         for page_number, page in tqdm(enumerate(doc)):

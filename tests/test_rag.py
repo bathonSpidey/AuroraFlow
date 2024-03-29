@@ -1,16 +1,17 @@
 import unittest
 import os
 
-from src.AuroraRag import AuroraRag
+from src.Rag.AuroraRag import AuroraRag
+
 
 class TestRag(unittest.TestCase):
     
     def setUp(self) -> None:
-        root_path = os.path.join(os.getcwd(), "tests/data/test.pdf")
-        self.rag = AuroraRag(root_path, "all-mpnet-base-v2")
+        print(os.getcwd())
+        root_path = os.path.join(os.getcwd(), "/data/test.pdf")
+        self.rag = AuroraRag("data/test.pdf", "all-mpnet-base-v2")
     def test_reading_pdf(self):
         pages_and_text = self.rag.encoder.recieve_data()
-        print(len(pages_and_text))
         self.assertEqual(len(pages_and_text), 1208)
         
     def test_processing_pdf(self):
@@ -30,9 +31,9 @@ class TestRag(unittest.TestCase):
         self.assertEqual(embeddings.shape[0], 1680)
         
     def test_matching_query_with_text(self):
-        query = "foods high in fiber"
+        query = "what is potien"
         results = self.rag.search(query)
-        print(results)
+        self.rag.display_results(results)
         self.assertEqual(len(results), 5)
         
         
