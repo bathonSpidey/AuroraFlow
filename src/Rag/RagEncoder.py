@@ -44,7 +44,7 @@ class RagEncoder:
     def add_embeddings(self, pages_and_chunks, clean_cache):
         root = os.path.join(os.getcwd(), ".cache")
         if os.path.exists(f"{root}/rag_embeddings_{self.folder_path}.csv") and not clean_cache:
-            text_chunks_and_embedding_df = pd.read_csv(f"{root}/rag_embeddings.csv")
+            text_chunks_and_embedding_df = pd.read_csv(f"{root}/rag_embeddings_{self.folder_path}.csv")
             text_chunks_and_embedding_df["embedding"] = text_chunks_and_embedding_df["embedding"].apply(
                 lambda x: np.fromstring(x.strip("[]"), sep=" "))
             return text_chunks_and_embedding_df
