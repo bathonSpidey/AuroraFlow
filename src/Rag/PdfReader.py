@@ -1,4 +1,5 @@
 import fitz
+import os
 from tqdm.asyncio import tqdm
 
 
@@ -8,11 +9,14 @@ class PdfReader:
 
     def open_pdf(self, page_number_offset):
         doc = fitz.open(self.data_path)
+        file_name, _ = os.path.splitext(self.data_path)
         pages_and_text = []
         for page_number, page in tqdm(enumerate(doc)):
             text = page.get_text("text")
             text = self.text_formatter(text)
+
             pages_and_text.append({"page_number": page_number-page_number_offset,
+                                   "file_name": file_name,
                                     "page_char_count": len(text),
                                     "page_word_count": len(text.split(" ")),
                                     "page_setence_count_raw": len(text.split(". ")),

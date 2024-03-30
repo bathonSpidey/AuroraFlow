@@ -15,7 +15,10 @@ class RagEncoder:
         self.pdf_reader = PdfReader(path)
         self.processor = PagesProcessor()
         self.embedding_model = SentenceTransformer(model, device="cpu")
-        self.min_token_length = 30
+        last_slash_index = path.rfind("/")
+        last_dot_index = path.rfind(".")
+        self.folder_path = "Aurora_" + path[last_slash_index + 1:last_dot_index]
+        self.min_token_length = 22
         self.page_offset = page_offset
 
     def recieve_data(self):
@@ -40,7 +43,7 @@ class RagEncoder:
 
     def add_embeddings(self, pages_and_chunks, clean_cache):
         root = os.path.join(os.getcwd(), ".cache")
-        if os.path.exists(f"{root}/rag_embeddings.csv") and not clean_cache:
+        if os.path.exists(f"{root}/rag_embeddings_{self.folder_path}.csv") and not clean_cache:
             text_chunks_and_embedding_df = pd.read_csv(f"{root}/rag_embeddings.csv")
             text_chunks_and_embedding_df["embedding"] = text_chunks_and_embedding_df["embedding"].apply(
                 lambda x: np.fromstring(x.strip("[]"), sep=" "))
@@ -53,7 +56,7 @@ class RagEncoder:
         text_chunks_and_embedding_df = pd.DataFrame(filtered_df)
         if not os.path.exists(root):
             os.makedirs(root)
-        text_chunks_and_embedding_df.to_csv(f"{root}/rag_embeddings.csv", index=False)
+        text_chunks_and_embedding_df.to_csv(f"{root}/rag_embeddings_{self.folder_path}.csv", index=False)
         return text_chunks_and_embedding_df
 
     def embed_query(self, query, device):

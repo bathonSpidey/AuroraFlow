@@ -12,14 +12,16 @@ class MultiAuroraRag:
     def __init__(self, path, model, page_offset=0):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.files = os.listdir(path)
+        last_slash_index = path.rfind("/")
+        self.folder_path = "Multi_Aurora_"+path[last_slash_index + 1:]
         self.data = MultiPdfReader(path).read()
         self.multirag_encoder = MultiRagEncoder(self.data, model, self.device)
 
-    def pdf_to_dataframe(self, clean_cache):
-        return self.multirag_encoder.make_embeddings(clean_cache)
+    def pdf_to_dataframe(self, folder_path,clean_cache):
+        return self.multirag_encoder.make_embeddings(folder_path, clean_cache)
 
     def search(self, query, clean_cache=False):
-        df = self.pdf_to_dataframe(clean_cache)
+        df = self.pdf_to_dataframe(self.folder_path, clean_cache)
         database_embeddings = torch.tensor(np.stack(df["embedding"].tolist(), axis=0), dtype=torch.float32).to(
             self.device)
         pages_and_chunks = df.to_dict(orient="records")

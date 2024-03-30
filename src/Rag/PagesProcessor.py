@@ -29,6 +29,7 @@ class PagesProcessor:
             for chunk in item["sentence_chunks"]:
                 chunk_dict = {}
                 chunk_dict["page_number"] = item["page_number"]
+                chunk_dict["file_name"] = item["file_name"]
                 joined_sentence_chunk = "".join(chunk).replace("  ", " ").strip()
                 joined_sentence_chunk = re.sub(r'\.([A-Z])', r'. \1', joined_sentence_chunk)
                 chunk_dict["sentence_chunk"] = joined_sentence_chunk

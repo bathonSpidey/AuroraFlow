@@ -12,6 +12,7 @@ class AuroraRag:
         self.encoder = RagEncoder(path, model, page_offset, self.device)
 
 
+
     def pdf_to_dataframe(self, clean_cache):
         return self.encoder.make_embeddings(clean_cache)
 
@@ -32,6 +33,8 @@ class AuroraRag:
             answer = {}
             answer["score"] = score
             answer["response"] = self.wrapped(pages_and_chunks[index]["sentence_chunk"])
+            answer["file_name"] = pages_and_chunks[index]["file_name"]
+            answer["page_number"] = pages_and_chunks[index]["page_number"]
             top_answers.append(answer)
         return top_answers
 
@@ -41,6 +44,9 @@ class AuroraRag:
     def display_results(self, results):
         display = ""
         for result in results:
-            display += result["response"] + "\n \n \n"
+            display += result["response"] + "\n"
+            display += f"For more information check: {result['file_name']} at index {result['page_number'] + 1}\n"
+            display += "Please note index is the total number of pages in the pdf regardless the page number \n \n"
+
         print(display)
         return display
